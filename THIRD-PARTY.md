@@ -1,106 +1,63 @@
-# 번들된 서드파티 구성요소
+Bundled third-party components
+What's included in the code inside the distributed jar, each item's original license and where it comes from.
 
-배포되는 jar 안에 포함되는 코드 목록. 각 항목의 원래 라이선스와 출처.
+Celeritas — LGPL-3.0
+Packages: org.embeddedt.embeddium.*, org.taumc.celeritas.*, com.mitchej123.lwjgl.*, com.mitchej123.glsm.*, assets/sodium/shaders/*
 
-## Celeritas — LGPL-3.0
+Source: https://github.com/GTNewHorizons/Celeritas (mirror) / https://git.taumc.org/embeddedt/celeritas
+Celeritas is a fork of Embeddium, which itself is based on the last FOSS-licensed version of Sodium (CaffeineMC) and on Oculus 1.7.
+Full license text: this repository's COPYING (GPLv3) and COPYING.LESSER (LGPLv3)
+How it was obtained: The Maven celeritas-common artifact targets Java 17 bytecode and LWJGL 3, which doesn't run on 1.8.9 (Java 8 + LWJGL 2). This instead uses the root entries from an Angelica release jar — the same code, already downgraded to class version 52 and built against LWJGL 2. The extraction process lives in scripts/extract-celeritas.py and is reproducible.
 
-패키지: `org.embeddedt.embeddium.*`, `org.taumc.celeritas.*`, `com.mitchej123.lwjgl.*`,
-`com.mitchej123.glsm.*`, `assets/sodium/shaders/*`
+Changes: The code itself was not modified. One runtime behavior is changed via a mixin — GLRenderDevice$ImmediateCommandList.copyBufferSubData is @Overwriten to fall back to a GL 1.5 round trip when the driver doesn't provide glCopyBufferSubData (GL 3.1 / ARB_copy_buffer). Drivers that do support it still take the original GPU path. (src/celeritas/java/me/natron/mixin/celeritas/MixinImmediateCommandList.java)
 
-- 출처: https://github.com/GTNewHorizons/Celeritas (미러) / https://git.taumc.org/embeddedt/celeritas
-- Celeritas 는 Embeddium 의 포크이며, Embeddium 은 마지막 FOSS 라이선스 버전의 Sodium
-  (CaffeineMC) 과 Oculus 1.7 에 기반한다.
-- 라이선스 전문: 이 저장소의 `COPYING`(GPLv3), `COPYING.LESSER`(LGPLv3)
+Angelica — LGPL-3.0
+Source: https://github.com/GTNewHorizons/Angelica
+None of Angelica's code is included directly. However, this project's bridge layer (src/celeritas/java/me/natron/render/*) ports Angelica's com.gtnewhorizons.angelica.rendering.celeritas package to 1.8.9's API, following its class structure and how it wires into Celeritas closely enough to reasonably be considered a derivative work — which is why this project is also LGPL-3.0.
 
-**입수 방식**: Maven 의 `celeritas-common` 은 Java 17 바이트코드에 LWJGL 3 대상이라 1.8.9
-(Java 8 + LWJGL 2)에서 쓸 수 없다. 대신 Angelica 릴리스 jar 의 루트 엔트리를 사용한다 —
-같은 코드가 이미 클래스 버전 52 로 다운그레이드되어 있고 LWJGL 2 를 대상으로 빌드돼 있다.
-추출 절차는 `scripts/extract-celeritas.py` 에 있으며 재현 가능하다.
+The correspondence is noted in each source file's comments (e.g. NatronFogService ↔ AngelicaFogService).
 
-**변경 사항**: 코드 자체는 수정하지 않았다. 런타임 동작 하나를 믹스인으로 바꾼다 —
-`GLRenderDevice$ImmediateCommandList.copyBufferSubData` 를 `@Overwrite` 하여, 드라이버가
-`glCopyBufferSubData`(GL 3.1 / ARB_copy_buffer)를 제공하지 않을 때 GL 1.5 왕복으로
-대체한다. 기능이 있는 드라이버에서는 원래 GPU 경로를 그대로 탄다.
-(`src/celeritas/java/me/natron/mixin/celeritas/MixinImmediateCommandList.java`)
+GTNHLib (bytebuf portion) — LGPL-3.0
+Package: com.gtnewhorizon.gtnhlib.bytebuf.* (19 classes)
 
-## Angelica — LGPL-3.0
+Source: https://github.com/GTNewHorizons/GTNHLib
+LWJGL 2 has no org.lwjgl.system.MemoryUtil, so Celeritas uses this for off-heap access instead. It's plain Java with no Minecraft dependency, so only that package was pulled in. Unmodified.
 
-- 출처: https://github.com/GTNewHorizons/Angelica
+JvmDowngrader runtime — LGPL-2.1
+Package: xyz.wagyourtail.jvmdg.* (954 classes)
 
-Angelica 의 코드가 직접 포함되지는 않는다. 다만 이 프로젝트의 브릿지 계층
-(`src/celeritas/java/me/natron/render/*`)은 Angelica 의
-`com.gtnewhorizons.angelica.rendering.celeritas` 패키지를 1.8.9 API 로 옮긴 것으로,
-클래스 구성과 Celeritas 연동 방식을 그대로 따랐다. 파생 저작물로 보는 것이 타당하며
-그래서 이 프로젝트도 LGPL-3.0 이다.
+Source: https://github.com/unimined/JvmDowngrader
+Available under LGPLv2.1 or a commercial license; non-commercial use follows LGPLv2.1.
+The classes Angelica distributes were converted Java 17 → 8 by JvmDowngrader, so calls to ServiceLoader.stream(), List.of(), and records have been rewritten as calls into jvmdg stubs. GTNH distributes those stubs separately, so jvmdowngrader-java-api is bundled here. (The stubs are compiled to the version they emulate, so they're downgraded to class version 52 first before being bundled.) Unmodified.
 
-대응 관계는 각 소스 파일 주석에 명시돼 있다 (예: `NatronFogService` ↔ `AngelicaFogService`).
+JOML — MIT
+Package: org.joml.*
 
-## GTNHLib (bytebuf 부분) — LGPL-3.0
+Source: https://github.com/JOML-CI/JOML
+Used by Celeritas for matrix/frustum math. Only module-info.class was removed — 1.8.9 FML scans every jar with ASM 5.0.3, and a Java 9 module-info makes it ignore the whole jar outright. No other changes.
 
-패키지: `com.gtnewhorizon.gtnhlib.bytebuf.*` (19 클래스)
+fastutil — Apache-2.0
+Package: it.unimi.dsi.fastutil.*
 
-- 출처: https://github.com/GTNewHorizons/GTNHLib
+Source: https://github.com/vigna/fastutil
+Celeritas's default collections. Unmodified.
 
-LWJGL 2 에는 `org.lwjgl.system.MemoryUtil` 이 없어서 Celeritas 가 오프힙 접근에 이걸 쓴다.
-Minecraft 비의존 순수 자바라 해당 패키지만 가져왔다. 수정 없음.
+SpongePowered Mixin — MIT
+Package: org.spongepowered.asm.*
 
-## JvmDowngrader 런타임 — LGPL-2.1
+Source: https://github.com/SpongePowered/Mixin
+Version 0.7.11 (the last release line compatible with 1.8.9's LaunchWrapper + ASM 5)
+Unmodified.
 
-패키지: `xyz.wagyourtail.jvmdg.*` (954 클래스)
+License summary
+Among the bundled components, Celeritas, Angelica (derivative), and GTNHLib are LGPL-3.0. They aren't linked in as separate libraries — they ship together inside one jar, and the bridge layer is itself a derivative work of them, so this project as a whole is distributed under LGPL-3.0.
 
-- 출처: https://github.com/unimined/JvmDowngrader
-- LGPLv2.1 또는 상업 라이선스 중 선택 가능하며, 비상업 사용은 LGPLv2.1 을 따른다.
+JvmDowngrader's LGPL-2.1 can be distributed alongside LGPL-3.0 (LGPLv2.1 §3's later-version clause). The MIT / Apache-2.0 items have no constraints that would affect an LGPL-3.0 distribution.
 
-Angelica 가 배포하는 클래스들은 JvmDowngrader 로 Java 17 → 8 변환된 것이라
-`ServiceLoader.stream()`, `List.of()`, record 호출이 jvmdg 스텁 호출로 치환돼 있다.
-GTNH 는 이 스텁을 별도 배포하므로 여기서는 `jvmdowngrader-java-api` 를 번들한다.
-(스텁이 자신이 흉내내는 버전으로 컴파일돼 있어 클래스 버전 52 로 먼저 내린 뒤 넣는다.)
-수정 없음.
+What distribution requires:
 
-## JOML — MIT
-
-패키지: `org.joml.*`
-
-- 출처: https://github.com/JOML-CI/JOML
-
-Celeritas 가 행렬/절두체 연산에 사용한다. **`module-info.class` 만 제거**했다 — 1.8.9 FML 이
-ASM 5.0.3 으로 모든 jar 를 스캔하는데 Java 9 module-info 를 만나면 해당 jar 를 통째로
-무시해 버리기 때문. 그 외 수정 없음.
-
-## fastutil — Apache-2.0
-
-패키지: `it.unimi.dsi.fastutil.*`
-
-- 출처: https://github.com/vigna/fastutil
-
-Celeritas 의 기본 컬렉션. 수정 없음.
-
-## SpongePowered Mixin — MIT
-
-패키지: `org.spongepowered.asm.*`
-
-- 출처: https://github.com/SpongePowered/Mixin
-- 버전 0.7.11 (1.8.9 의 LaunchWrapper + ASM 5 와 맞는 마지막 계열)
-
-수정 없음.
-
----
-
-## 라이선스 종합
-
-번들 구성요소 중 Celeritas, Angelica(파생), GTNHLib 가 **LGPL-3.0** 이고, 이들이 별도
-라이브러리로 링크되는 것이 아니라 jar 안에 함께 배포되며 브릿지가 그 파생 저작물이므로,
-**이 프로젝트 전체는 LGPL-3.0 으로 배포한다.**
-
-JvmDowngrader 의 LGPL-2.1 은 LGPL-3.0 과 함께 배포 가능하다(LGPLv2.1 §3 의 상위 버전 선택
-조항). MIT / Apache-2.0 항목은 LGPL-3.0 배포에 포함되는 데 제약이 없다.
-
-배포 시 지켜야 할 것:
-
-1. 전체 소스 공개 (이 저장소)
-2. `COPYING`, `COPYING.LESSER` 동봉 — jar 안과 저장소 양쪽
-3. 변경 사항 명시 — 위 각 항목의 "변경 사항" 절
-4. 원저작자 표시 — 이 파일과 README
-
-*이 문서는 각 라이선스 파일에 적힌 내용을 정리한 것이며 법률 자문이 아니다. 상업적 배포나
-분쟁 소지가 있는 상황이라면 별도로 확인할 것.*
+Full source availability (this repository)
+Bundling COPYING and COPYING.LESSER — both inside the jar and in the repository
+Documenting changes — see each component's "Changes" section above
+Attribution to original authors — this file and the README
+This document summarizes what each license file itself says and is not legal advice. For commercial distribution or anything with dispute potential, verify separately.
