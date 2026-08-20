@@ -42,7 +42,7 @@ Measured (low-spec machine, multiplayer):
 | | FPS |
 |---|---|
 | OptiFine | 60 ~ 80 |
-| Natron | **~200** |
+| Natron | **~250** |
 
 Varies by machine and situation. This number comes from one machine — see
 "Verification scope" below.
