@@ -1,0 +1,15 @@
+[
+  {
+    "modid": "natron",
+    "name": "Natron",
+    "description": "Unofficial fork/port of Angelica and Celeritas (itself derived from Embeddium/Sodium) to Minecraft 1.8.9 Forge.",
+    "version": "${version}",
+    "mcversion": "1.8.9",
+    "url": "https://discord.gg/bvDjwkVqV",
+    "authorList": [],
+    "credits": "Built on Celeritas (embeddedt) and Angelica (GTNewHorizons), which trace back to Embeddium and Sodium (CaffeineMC). Not affiliated with or endorsed by any of them.",
+    "logoFile": "",
+    "screenshots": [],
+    "dependencies": []
+  }
+]
